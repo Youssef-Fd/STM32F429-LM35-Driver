@@ -1,92 +1,108 @@
 ---
 
-# STM32F429 LM35 Temperature Monitor
+# STM32F429 LM35 Temperature Driver
 
-This project is a bare-metal embedded application that reads analog temperature data from an **LM35 sensor** using the **STM32F429ZI** microcontroller. Instead of relying on heavy standard libraries, this project implements a **custom, lightweight Hardware Abstraction Layer (HAL)** to interface directly with the ARM Cortex-M4 registers.
+A custom bare-metal embedded driver for the LM35 analog temperature sensor on the STM32F429. This project implements a modular HAL (Hardware Abstraction Layer) for ADC and UART to sample thermal data and stream it to a serial terminal.
 
----
+## Features
 
-## 🚀 Project Overview
+* ⚙️ **Custom HAL Implementation**: Register-level drivers for ADC and USART without using standard ST libraries.
+* 🌡️ **10-bit ADC Sampling**: Configured for continuous conversion mode on Channel 0.
+* 🔢 **Integer-based Precision**: Calculates temperature with two decimal places using integer math to avoid heavy float processing.
+* ⚡ **Interrupt-Driven UART**: Non-blocking transmission using `TXE` (Transmit Data Register Empty) interrupts.
+* 📡 **Serial Monitoring**: Continuous data stream at 9600 Baud.
 
-The goal of this project was to create a high-efficiency temperature monitoring system. The workflow follows three main stages:
+## Tech Stack
 
-1. **Sensing**: The LM35 sensor outputs a linear voltage proportional to the temperature.
-2. **Conversion**: The STM32’s internal **ADC (Analog-to-Digital Converter)** translates this analog voltage into a 10-bit digital value.
-3. **Communication**: The processed temperature data is sent to a PC via **USART1** using an interrupt-driven state machine.
+* **Language**: Embedded C
+* **Architecture**: ARM Cortex-M4
+* **Peripherals**: ADC1, USART1, GPIO
+* **Toolchain**: STM32CubeIDE
 
----
+## Prerequisites
 
-## 🛠️ Technical Implementation
+Before you begin, ensure you have the following:
 
-### 1. Custom Peripheral Drivers (Bare-Metal)
+* **Hardware**: STM32F429ZI Discovery Board.
+* **Sensor**: LM35 Linear Temperature Sensor.
+* **Debugger**: On-board ST-LINK/V2.
+* **Terminal**: Serial monitor (PuTTY, TeraTerm, or STM32CubeIDE Console).
 
-Unlike standard projects that use `STM32CubeHAL`, I developed custom drivers in `ADC_HAL.c` and `UART_HAL.c`. This provides:
+## Installation
 
-* **Lower Memory Footprint**: Only the necessary registers are toggled.
-* **Better Performance**: Minimal overhead in interrupt handling.
-* **Direct Control**: Granular control over clock gating and peripheral timing.
+1. Clone the repository:
 
-### 2. ADC Configuration (The Input)
+```bash
+git clone https://github.com/Youssef-Fd/STM32F429-LM35-Driver.git
+cd STM32F429-LM35-Driver
 
-The ADC is configured in **10-bit resolution mode**.
+```
 
-* **Pin**: Port A, Pin 0 (`PA0`).
-* **Sampling**: Uses continuous conversion mode with a 3-cycle sampling time for rapid updates.
-* **Logic**: The `HAL_ADC_WaitForConversion()` function ensures the data is ready before the CPU attempts to read the register, preventing "stale" data readings.
+2. Open **STM32CubeIDE** and select `File > Import`.
+3. Choose `Existing Projects into Workspace` and select the cloned folder.
+4. Clean and Build the project.
+5. Connect your board and click **Resume/Run**.
 
-### 3. UART Interrupt State Machine (The Output)
+## Hardware Connection
 
-To prevent the CPU from "freezing" while waiting for serial data to send, I implemented an **Interrupt-Driven USART**.
+The LM35 output is connected to the STM32's Analog-to-Digital converter.
 
-* When a string is sent, the `TXE` (Transmit Data Register Empty) interrupt is triggered.
-* The `USART1_IRQHandler` handles the character-by-character transfer in the background.
-* This allows the main loop to continue running other tasks while data is being transmitted.
-
----
-
-## 🧪 The Math: From Volts to Celsius
-
-The LM35 sensor provides  per . To convert the raw 10-bit digital value back into a human-readable temperature, the following logic is used:
-
-1. **Calculate Voltage**:
-Calculate Voltage:$$Voltage (mV) = \frac{ADC\_Value \times 3300}{1023}$$(Where 3300 is the $3.3V$ reference in $mV$, and 1023 is the max value for 10-bit resolution).
-2. **Calculate Temperature**:
-
-
-3. **Integer Precision**:
-To avoid using slow floating-point math, the code calculates the temperature multiplied by 100 to extract both the **Integer** and **Decimal** parts for display (e.g., ).
-
----
-
-## 🔌 Hardware Setup
-
-| LM35 Pin | STM32 Pin | Role |
+| LM35 Pin | STM32F429 Pin | Function |
 | --- | --- | --- |
-| **+Vs** | 3.3V / 5V | Power Supply |
-| **Vout** | **PA0** | Analog Signal Output |
+| **VCC** | 3.3V or 5V | Power Supply |
+| **OUT** | **PA0** | ADC1_IN0 (Analog Input) |
 | **GND** | GND | Ground |
+| **-** | **PA9** | USART1_TX (Serial Out) |
+| **-** | **PA10** | USART1_RX (Serial In) |
+
+## Driver API Reference
+
+### ADC HAL (`ADC_HAL.h`)
+
+* `HAL_ADC_Init()`: Configures ADC1 for 10-bit resolution, scan mode, and PA0 as analog input.
+* `HAL_ADC_Start(channel)`: Triggers the conversion on the specified channel.
+* `HAL_ADC_Get_Value()`: Returns the raw 10-bit value from the Data Register (`DR`).
+
+### UART HAL (`USART_HAL.h`)
+
+* `hal_uart_init(handle)`: Sets baud rate (9600), word length, and stop bits.
+* `hal_uart_tx(handle, buffer, len)`: Initiates interrupt-driven transmission.
+* `USART1_IRQHandler()`: Handles the state machine for background data transfer.
+
+## Core Conversion Logic
+
+The code converts the 10-bit ADC value to millivolts and then to Celsius ():
+
+```c
+// 1023 represents the max value for 10-bit resolution
+temperature_C = (ADC_value * 3300) / 1023; 
+
+uint32_t Temp_int = temperature_C / 100;
+uint32_t Temp_dec = temperature_C % 100;
+
+sprintf(temperature, "Temperature: %u.%02u C\r\n", Temp_int, Temp_dec);
+
+```
+
+## Troubleshooting
+
+### 1. Temperature reads 0.00
+
+* Ensure the LM35 **VCC** and **GND** are not swapped.
+* Check if **PA0** is firmly connected to the center pin of the LM35.
+
+### 2. Garbage characters in Serial Monitor
+
+* Verify the Baud Rate is set to **9600** in your terminal software.
+* Ensure the STM32 clock configuration matches the UART baud rate calculation in `hal_uart_set_baud_rate`.
+
+### 3. Build Errors
+
+* Check that `Common_BASES.h` is included in your include path, as it defines the register base addresses used in the HAL.
+
+## Acknowledgments
+
+* This project uses a custom register-level approach inspired by the STM32 Reference Manual (RM0090).
+* Special thanks to the open-source community for embedded driver patterns.
 
 ---
-
-## 📁 Project Structure
-
-* `main.c`: The core application loop and system initialization.
-* `ADC_HAL.c / .h`: Register definitions and functions for Analog-to-Digital conversion.
-* `UART_HAL.c / .h`: USART configuration, baud rate calculation, and interrupt handling logic.
-* `GPIO_HAL.h`: Definitions for Port and Pin modes (Analog vs. Alternate Function).
-* `Common_BASES.h`: Contains the base memory addresses for all peripherals used.
-
----
-
-## 📝 How to Use
-
-1. Connect the LM35 to **PA0** on your STM32F429.
-2. Flash the code using **STM32CubeIDE**.
-3. Open a Serial Terminal (like PuTTY) set to **9600 Baud**.
-4. Observe the real-time temperature updates every 1 second.
-
----
-
-### What I can do for you next:
-
-Would you like me to help you **add a "Calibration Offset"** to the code to account for small inaccuracies in your specific LM35 sensor?
