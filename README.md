@@ -6,11 +6,11 @@ A custom bare-metal embedded driver for the LM35 analog temperature sensor on th
 
 ## Features
 
-* ⚙️ **Custom HAL Implementation**: Register-level drivers for ADC and USART without using standard ST libraries.
-* 🌡️ **10-bit ADC Sampling**: Configured for continuous conversion mode on Channel 0.
-* 🔢 **Integer-based Precision**: Calculates temperature with two decimal places using integer math to avoid heavy float processing.
-* ⚡ **Interrupt-Driven UART**: Non-blocking transmission using `TXE` (Transmit Data Register Empty) interrupts.
-* 📡 **Serial Monitoring**: Continuous data stream at 9600 Baud.
+**Custom HAL Implementation**: Register-level drivers for ADC and USART without using standard ST libraries.
+***10-bit ADC Sampling**: Configured for continuous conversion mode on Channel 0.
+**Integer-based Precision**: Calculates temperature with two decimal places using integer math to avoid heavy float processing.
+***Interrupt-Driven UART**: Non-blocking transmission using `TXE` (Transmit Data Register Empty) interrupts.
+***Serial Monitoring**: Continuous data stream at 9600 Baud.
 
 ## Tech Stack
 
