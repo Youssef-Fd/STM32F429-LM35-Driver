@@ -57,7 +57,7 @@ int main(void) {
     	HAL_ADC_WaitForConversion();
 
         ADC_value = HAL_ADC_Get_Value();
-        temperature_C = (ADC_value * 33000) / 1023;
+        temperature_C = (ADC_value * 3300) / 1023;
 
         uint32_t Temp_int = temperature_C / 100;
         uint32_t Temp_dec = temperature_C % 100;
