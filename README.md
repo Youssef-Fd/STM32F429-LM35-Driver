@@ -1,5 +1,3 @@
-# STM32 Temperature Measurement using Custom ADC & UART HAL
-
 ## Project Overview
 
 This project implements a **temperature measurement system** on an **STM32 microcontroller** using **custom-written HAL drivers** (no STM32Cube HAL usage).
