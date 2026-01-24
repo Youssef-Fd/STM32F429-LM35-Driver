@@ -61,7 +61,7 @@ typedef struct {
 #define GPIO_MODE_INPUT       0x00
 #define GPIO_MODE_OUTPUT      0x01
 #define GPIO_MODE_AF          0x02
-#define GPIO_MODE_ANALOG      0x03  /* Used for ADC */
+#define GPIO_MODE_ANALOG      0x03
 
 
 #endif /* GPIO_HAL_H_ */
