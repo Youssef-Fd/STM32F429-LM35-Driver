@@ -1,5 +1,3 @@
----
-
 # STM32 Temperature Measurement using Custom ADC & UART HAL
 
 ## Project Overview
