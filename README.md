@@ -1,76 +1,136 @@
-# STM32F429 LM35 Temperature Driver
+---
 
-A custom bare-metal embedded driver for the LM35 analog temperature sensor on the STM32F429. This project implements a modular HAL (Hardware Abstraction Layer) for ADC and UART to sample thermal data and stream it to a serial terminal.
+# STM32 Temperature Measurement using Custom ADC & UART HAL
 
-## Features
+## Project Overview
 
-- **Custom HAL Implementation**: Register-level drivers for ADC and USART without using standard ST libraries.
-- **10-bit ADC Sampling**: Configured for continuous conversion mode on Channel 0.
-- **Integer-based Precision**: Calculates temperature with two decimal places using integer math to avoid heavy float processing.
-- **Interrupt-Driven UART**: Non-blocking transmission using `TXE` (Transmit Data Register Empty) interrupts.
-- **Serial Monitoring**: Continuous data stream at 9600 Baud.
+This project implements a **temperature measurement system** on an **STM32 microcontroller** using **custom-written HAL drivers** (no STM32Cube HAL usage).
 
-## Tech Stack
+The system:
 
-* **Language**: Embedded C
-* **Architecture**: ARM Cortex-M4
-* **Peripherals**: ADC1, USART1, GPIO
-* **Toolchain**: STM32CubeIDE
+* Reads an **analog temperature sensor** via **ADC**
+* Converts the ADC value to **temperature in °C**
+* Sends the temperature periodically over **UART (USART1)** using **interrupt-based transmission**
 
-## Prerequisites
-
-Before you begin, ensure you have the following:
-
-* **Hardware**: STM32F429ZI Discovery Board.
-* **Sensor**: LM35 Linear Temperature Sensor.
-* **Debugger**: On-board ST-LINK/V2.
-* **Terminal**: Serial monitor (PuTTY, TeraTerm, or STM32CubeIDE Console).
-
-## Installation
-
-2. **Open STM32CubeIDE**:
-* Go to `File` > `Import`.
-* Select `General` > `Existing Projects into Workspace`.
-* Browse to the `STM32F429-LM35-Driver` folder and click `Finish`.
-
-
-3. **Build the Project**: Click the **Hammer icon** in the toolbar to compile the code.
-4. **Flash the Board**: Connect your STM32F429ZI Discovery board via USB and click the **Run (Play) icon**.
+The goal of this project is to **understand low-level peripheral programming**, register manipulation, and **driver abstraction** in embedded systems.
 
 ---
 
-## Hardware Connection
+## Key Learning Objectives
 
-To get accurate readings, ensure the LM35 sensor is connected to the correct Analog-to-Digital (ADC) pins on the Discovery board.
-
-| LM35 Pin | STM32F429 Pin | Role |
-| --- | --- | --- |
-| **+Vs (VCC)** | 3.3V or 5V | Power Supply |
-| **Vout (OUT)** | **PA0** | Analog Signal Output (ADC1_IN0) |
-| **GND** | GND | Common Ground |
-| **UART TX** | **PA9** | Connect to Serial-to-USB RX |
-| **UART RX** | **PA10** | Connect to Serial-to-USB TX |
+* Direct register-level programming (bare-metal)
+* Writing reusable **HAL-like drivers**
+* ADC configuration and polling-based conversion
+* UART communication using **interrupts**
+* NVIC interrupt handling
+* Modular embedded software design
 
 ---
 
-## Driver API Reference
+## Hardware & Tools
 
-### ADC HAL (`ADC_HAL.h`)
-
-* `HAL_ADC_Init()`: Configures ADC1 for 10-bit resolution, enables the clock for GPIOA, and sets PA0 to Analog mode.
-* `HAL_ADC_Start(uint8_t channel)`: Triggers a conversion on the specified ADC channel.
-* `HAL_ADC_Get_Value()`: Returns the 10-bit raw digital value from the Data Register.
-
-### UART HAL (`USART_HAL.h`)
-
-* `hal_uart_init(handle)`: Configures Baud rate, Word length, and Stop bits.
-* `hal_uart_tx(handle, buffer, len)`: Initiates a non-blocking transfer using the `TXE` interrupt.
-* `hal_uart_handle_interrupt(handle)`: The core ISR logic that manages the byte-by-byte transmission state machine.
+* **Microcontroller**: STM32 (tested on STM32F4 series)
+* **Temperature Sensor**: Analog (e.g. LM35)
+* **IDE**: STM32CubeIDE
+* **Communication**: UART (USART1 @ 9600 baud)
+* **Language**: C
 
 ---
 
-## Troubleshooting
+## Project Structure
 
-* **Reading stays at 0.00**: Verify that the LM35 is receiving power. These sensors are sensitive to orientation; check the pinout carefully.
-* **Serial Terminal is empty**: Ensure your terminal (PuTTY/TeraTerm) is set to **9600 Baud** and you are connected to the correct COM port.
-* **Garbage Characters**: This usually indicates a clock mismatch. Verify that your `BRR` (Baud Rate Register) calculation matches your system clock speed.
+```
+├── main.c
+├── ADC_HAL.c
+├── ADC_HAL.h
+├── UART_HAL.c
+├── UART_HAL.h
+├── GPIO_HAL.h
+├── Common_BASES.h
+└── README.md
+```
+
+---
+
+## System Architecture
+
+### ADC Driver (ADC_HAL)
+
+* Configured in **10-bit resolution**
+* Continuous conversion mode
+* Polling-based conversion (EOC flag)
+* Channel selected dynamically via `HAL_ADC_Start(channel)`
+
+**Main ADC APIs:**
+
+```c
+HAL_ADC_Init();
+HAL_ADC_Start(channel);
+HAL_ADC_WaitForConversion();
+HAL_ADC_Get_Value();
+```
+
+---
+
+### UART Driver (UART_HAL)
+
+* Fully custom UART driver
+* Interrupt-driven transmission and reception
+* Supports:
+
+  * TXE (Transmit Data Register Empty)
+  * TC (Transmission Complete)
+  * RXNE (Receive Not Empty)
+  * Error handling (PE, FE, NE, ORE)
+
+**UART Configuration:**
+
+* Baud rate: `9600`
+* Word length: `8 bits`
+* Stop bits: `1`
+* Parity: `None`
+* Oversampling: `16`
+
+**Main UART APIs:**
+
+```c
+hal_uart_init();
+hal_uart_tx();
+hal_uart_rx();
+hal_uart_handle_interrupt();
+```
+
+---
+
+### GPIO Configuration
+
+* USART1 pins configured manually:
+
+  * **PA9** → TX
+  * **PA10** → RX
+* GPIO set to **Alternate Function mode**
+* ADC pin configured as **Analog mode**
+
+---
+
+## Main Application Flow
+
+1. Initialize GPIO, UART, and ADC
+2. Start ADC conversion on selected channel
+3. Wait for conversion completion
+4. Read ADC value
+5. Convert ADC value to temperature (°C)
+6. Send temperature over UART
+7. Repeat every 1 second
+
+---
+
+## Temperature Conversion Logic
+
+```c
+temperature_C = (ADC_value * 3300) / 1023;
+Temp_int = temperature_C / 100;
+Temp_dec = temperature_C % 100;
+```
+
+
