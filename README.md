@@ -449,7 +449,7 @@ State: READY
 ### ADC Conversion Time
 
 * Sample Time: 3 ADC clock cycles
-* Conversion Time: 12 ADC clock cycles
+* Conversion Time: 12 ADC clock cycles, fixed hardware characteristic 
 * Total: 15 ADC cycles = 714 nanoseconds (at 21 MHz ADC clock)
 
 ### UART Transmission Time
