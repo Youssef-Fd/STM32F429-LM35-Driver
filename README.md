@@ -137,9 +137,9 @@ The UART interrupt mechanism is based on the **STM32 interrupt vector table** (R
 ## Interrupt Vector Table Reference
 
 The STM32 interrupt vector table defines which **ISR (Interrupt Service Routine)** is executed when a peripheral raises an interrupt.
-```
+
 ![image alt](https://github.com/Youssef-Fd/STM32F429-LM35-Driver/blob/7800e0e9b77388264d055e0965b20e8faa2495cd/Interrupt_vector%20table.png)
-```
+
 Each USART peripheral maps to a fixed IRQ number and ISR name:
 
 | Peripheral | IRQ Number | ISR Name          |
