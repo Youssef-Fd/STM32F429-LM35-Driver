@@ -522,14 +522,7 @@ State: READY
 
 When system operates correctly, terminal should display:
 
-```
-Temperature: 25.00 C
-Temperature: 25.04 C
-Temperature: 24.98 C
-Temperature: 25.02 C
-Temperature: 25.01 C
-...
-```
+![image alt](https://github.com/Youssef-Fd/STM32F429-LM35-Driver/blob/f88eb2df29aa58a7038ee1ff83154efd15771400/LM35_TEST.png)
 
 Each line updates approximately every 1 second. Temperature values will vary based on sensor readings.
 
