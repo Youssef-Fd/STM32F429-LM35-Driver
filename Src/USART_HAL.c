@@ -2,7 +2,7 @@
  * UART_HAL.c
  *
  *  Created on: Jan 19, 2026
- *      Author: Lenovo
+ *      Author: Youssef Fadel
  */
 #include <stdio.h>
 #include <stdint.h>
@@ -164,8 +164,8 @@ static void hal_uart_clear_error_flag(uart_handle_t *huart)
 static void hal_uart_error_cb(uart_handle_t *uart_handle)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN; //GPIOG Clock
-	GPIOG->MODER &= ~(3 << 26);    //Clear pins PG13
-	GPIOG->MODER |= (1 << 26);     //Set pins PG13
+	GPIOG->MODER &= ~(3 << 13*2);    //Clear pins PG13
+	GPIOG->MODER |= (1 << 13*2);     //Set pins PG13
 
 	while(1)
 	{
