@@ -2,7 +2,7 @@
  * ADC_HAL.h
  *
  *  Created on: Jan 21, 2026
- *      Author: Lenovo
+ *      Author: Youssef Fadel
  */
 
 #ifndef ADC_HAL_H_
