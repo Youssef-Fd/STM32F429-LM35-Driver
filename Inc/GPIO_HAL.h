@@ -2,7 +2,7 @@
  * GPIO_HAL.h
  *
  *  Created on: Jan 21, 2026
- *      Author: Lenovo
+ *      Author: Youssef Fadel
  */
 
 #ifndef GPIO_HAL_H_
