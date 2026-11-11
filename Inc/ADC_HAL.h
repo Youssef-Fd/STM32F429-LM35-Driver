@@ -142,8 +142,6 @@ typedef struct
  *  - Enabling the ADC and GPIO clocks
  *  - Configuring the GPIO pin in analog mode
  *  - Setting ADC resolution, sample time, and channel
- *  - Enabling ADC end-of-conversion interrupt (EOC)
- *  - Configuring the NVIC for ADC interrupts
  *
  * @retval None
  */
