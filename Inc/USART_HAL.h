@@ -2,7 +2,7 @@
  * UART_HAL.h
  *
  *  Created on: Jan 19, 2026
- *      Author: Lenovo
+ *      Author: Youssef Fadel
  */
 
 #ifndef USART_HAL_H_
