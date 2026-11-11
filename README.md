@@ -257,8 +257,6 @@ Output format: `Temperature: XX.YY C`
 
 A new line appears about every second.
 
----
-
 ## References
 
 - STM32F429 Reference Manual (RM0090)
