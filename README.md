@@ -259,20 +259,6 @@ A new line appears about every second.
 
 ---
 
-## Known Limitations and Planned Improvements
-
-- **Temperature scaling:** the code divides millivolts by 100, but the LM35 gives 10 mV/°C, so the printed value is 10 times too small. The correct form is `tenths_C = (ADC_value * 3300U) / 1023U / 1U;` (1 mV = 0.1 °C), printed as `%u.%u` with one decimal.
-- **Error callback:** it is hard-coded and halts the system. The planned design is to record the error, abort the transfer and call a registered callback.
-- **`hal_uart_tx()`:** it does not check for `BUSY_TX` and has no return value. A call with `len == 0` would underflow the counter. A planned fix is to return `OK`/`BUSY`/`ERROR`.
-- **Stop-bit configuration:** the mask `USART_REG_CR2_STOP_Bit` is used as a shift count, so the field is never actually written. Only the reset value (1 stop bit) works.
-- **Baud rate:** a constant table valid only at 16 MHz. A better design computes `BRR` from `PCLK2` and the requested baud rate.
-- **Shared state:** `tx_state`, `rx_state` and the transfer counters should be `volatile`.
-- **ADC:** continuous mode is enabled although conversions are triggered once per loop, and scan mode is unnecessary for one channel. Single-conversion mode would be cleaner. A longer sample time would also improve accuracy.
-- **Timing:** the 1-second delay is an uncalibrated busy loop. A SysTick or timer-based delay is planned.
-- **Range and resolution:** about 0.32 °C per LSB, and 0 to 150 °C uses under half of the ADC range.
-
----
-
 ## References
 
 - STM32F429 Reference Manual (RM0090)
