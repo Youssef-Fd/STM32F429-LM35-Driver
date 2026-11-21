@@ -5,8 +5,10 @@
  *      Author: Youssef Fadel
  */
 
+#include <stdio.h>
 #include <stdint.h>
-#include "UART_HAL.h"
+#include "USART_HAL.h"
+#include "GPIO_HAL.h"
 
 void delay_ms(uint32_t ms) {
     for (uint32_t i = 0; i < ms * 4000; i++) {
