@@ -47,7 +47,7 @@ int main(void) {
     huart1.Init.Parity       = UART_PARITY_NONE;
     huart1.Init.Mode         = (USART_REG_CR1_TE | USART_REG_CR1_RE);
 
-    hal_uart_init(&huart1);
+    hal_uart_init(&huart1, 1);
     NVIC_ENABLE_IRQ(USART1_IRQ_NUM);
 
     HAL_ADC_Init();
