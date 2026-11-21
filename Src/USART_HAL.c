@@ -26,28 +26,28 @@ static void hal_uart_disable(USART_TypeDef *uartx){
 
 /* ------------Enabling USART Clock------------- */
 static void hal_uart_clk_Enable(USART_TypeDef *uartx, uint8_t uart_name){
-	if(uart_name == 1){
+	if(uart_name == 1U){
 		__HAL_RCC_USART1_CLK_ENABLE();
 	}
-	else if(uart_name == 2){
+	else if(uart_name == 2U){
 		__HAL_RCC_USART2_CLK_ENABLE();
 	}
-	else if(uart_name == 3){
+	else if(uart_name == 3U){
 		__HAL_RCC_USART3_CLK_ENABLE();
 	}
-	else if(uart_name == 4){
+	else if(uart_name == 4U){
 		__HAL_RCC_UART4_CLK_ENABLE();
 	}
-	else if(uart_name == 5){
+	else if(uart_name == 5U){
 		__HAL_RCC_UART5_CLK_ENABLE();
 	}
-	else if(uart_name == 6){
+	else if(uart_name == 6U){
 		__HAL_RCC_USART6_CLK_ENABLE();
 	}
-	else if(uart_name == 7){
+	else if(uart_name == 7U){
 		__HAL_RCC_USART7_CLK_ENABLE();
 	}
-	else if(uart_name == 8){
+	else if(uart_name == 8U){
 		__HAL_RCC_USART8_CLK_ENABLE();
 	}
 }
@@ -111,16 +111,16 @@ static void hal_uart_set_baud_rate(USART_TypeDef *uartx, uint32_t baudRate){
 
 	uint32_t baud;
 	if( baudRate == USART_BAUD_9600){
-		baud = 0x0683;     /* 9600 Baud Rate */
+		baud = 0x0683U;     /* 9600 Baud Rate */
 	}
 	else if( baudRate == USART_BAUD_19200){
-		baud = 0x341;      /* 19200 Baud Rate */
+		baud = 0x341U;      /* 19200 Baud Rate */
 	}
 	else if( baudRate == USART_BAUD_115200){
-		baud = 0x8A;      /* 115200 Baud Rate */
+		baud = 0x8AU;      /* 115200 Baud Rate */
 	}
 	else{
-		baud = 0x11;      /* 921600 Baud Rate */
+		baud = 0x11U;      /* 921600 Baud Rate */
 	}
 	uartx -> BRR = baud;  /* Set the baud rate in the baud rate regiter */
 
@@ -192,12 +192,12 @@ static void hal_uart_clear_error_flag(uart_handle_t *huart)
 static void hal_uart_error_cb(uart_handle_t *uart_handle)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN; //GPIOG Clock
-	GPIOG->MODER &= ~(3UL << 26);    //Clear pins PG13
-	GPIOG->MODER |= (1UL << 26);     //Set pins PG13
+	GPIOG->MODER &= ~(3UL << 26U);    //Clear pins PG13
+	GPIOG->MODER |= (1UL << 26U);     //Set pins PG13
 
 	while(1)
 	{
-		GPIOG->ODR ^= (1UL << 13); // Toggle LED in pin PG13
+		GPIOG->ODR ^= (1UL << 13U); // Toggle LED in pin PG13
 		for(volatile int i = 0; i < 500000; i++);
 	}
 }
@@ -206,7 +206,7 @@ static void hal_uart_error_cb(uart_handle_t *uart_handle)
 /* ----------- Handle TXE interrupt: send next byte --------------- */
 static void hal_uart_handle_TXE_interrupt(uart_handle_t *huart)
 {
-    uint32_t tmp1 = 0;
+    uint32_t tmp1 = 0U;
     uint8_t val;
 
     tmp1 = huart->tx_state;
@@ -250,7 +250,7 @@ static void hal_uart_handle_TC_interrupt(uart_handle_t *huart)
 /*---------------brief Handle the RXNE interrupt ------------------*/
 static void hal_uart_handle_RXNE_interrupt(uart_handle_t *huart)
 {
-    uint32_t tmpl = 0;
+    uint32_t tmpl = 0U;
 
     tmpl = huart->rx_state;
 
